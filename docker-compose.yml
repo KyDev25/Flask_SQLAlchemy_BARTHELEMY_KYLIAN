@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    volumes:
+      - ./src/reservations_chambres:/src/reservations_chambres
+    ports:
+      - 5000:5000
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: reservations_chambres
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
