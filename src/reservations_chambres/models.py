@@ -18,8 +18,8 @@ class Reservation(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   id_client = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
   id_chambre = db.Column(db.Integer, db.ForeignKey('chambre.id'), nullable=False)
-  date_arrivee = db.Column(db.Date, nullable=False, default=datetime.now)
-  date_depart = db.Column(db.Date, nullable=True, default = datetime.now()+timedelta(days=1))
+  date_arrivee = db.Column(db.DateTime, nullable=False, default=datetime.now)
+  date_depart = db.Column(db.DateTime, nullable=True, default = datetime.now()+timedelta(days=1))
   statut = db.Column(db.String(80), nullable=False)
 
 
