@@ -5,21 +5,37 @@ from datetime import datetime
 
 reservation = Blueprint('reservation', __name__)
 
-#Route pour créer une reservation
 @reservation.route('/api/reservations', methods=['POST'])
 def add_reservation():
+  """
+  Description: Ajouter une reservation.
+
+  Vérifications:
+  - Si la date d'arrivee est inferieure à la date de depart (#*1)
+  - S'il n'y a des paramètres dans le body (#*2)
+  - Si la date d'arrivee ou la date de depart est comprise dans l'intervalle (#*3)
+
+  Etapes:
+  - On parcours la liste de toutes les chambres (#*4)
+
+  Résultat: Réservation créée avec succès.
+  """
   data = request.get_json()
   getAllReservations = Reservation.query.join(Chambre).filter(Chambre.id == data['id_chambre']).all()
   arrival_date = datetime.strptime(data['date_arrivee'],'%Y-%m-%d')
   departure_date = datetime.strptime(data['date_depart'],'%Y-%m-%d')
 
-  #S'il n'y a pas de paramètres dans le body
+  #*1
+  if arrival_date > departure_date:
+    return jsonify({'success': False, 'message': 'La date d\'arrivee doit être inferieure à la date de depart'})
+
+  #*2
   if not data:
     return jsonify({'success': False, 'message': 'Réservation non créée'})
 
-  #On parcours la liste de toutes les réservations
+  #*4
   for reservation in getAllReservations:
-    #Si la date d'arrivee ou la date de depart est comprise dans l'intervalle
+    #*3
     if ((arrival_date <= reservation.date_depart <= departure_date) or (arrival_date <= reservation.date_arrivee <= departure_date)) or ((arrival_date == reservation.date_depart and departure_date == reservation.date_depart) or (arrival_date == reservation.date_arrivee and departure_date == reservation.date_arrivee)):
       return jsonify({'success': False, 'message': 'Cette Chambre est déjà réservée dans cet intervalle de temps.'})
 
@@ -30,12 +46,19 @@ def add_reservation():
 
   return jsonify({'success': True, 'message': 'Réservation créée avec succès.'})
 
-#Route pour supprimer une reservation
 @reservation.route('/api/reservations/<int:id>', methods=['DELETE'])
 def delete_reservation(id):
+  """
+  Description: Supprimer une reservation.
+
+  Vérifications:
+  - Si l'id ne correspond à aucunes reservations (#*1)
+
+  Résultat: Réservation annulée avec succès.
+  """
   getReservation = Reservation.query.get(id)
 
-  #Si l'id ne correspond à aucunes réservations
+  #*1
   if not getReservation:
     return jsonify({'success': False, 'message': 'Réservation inexistante.'})
 
@@ -48,6 +71,11 @@ def delete_reservation(id):
 #Route pour afficher toutes les reservations
 @reservation.route('/api/reservations/all', methods=['GET'])
 def get_all_reservations():
+  """
+  Description: Afficher toutes les reservations.
+
+  Résultat: Liste de toutes les reservations.
+  """
   getAllReservations = Reservation.query.all()
   listAllReservations = []
 

@@ -4,12 +4,19 @@ from ..database import db
 
 client = Blueprint('client', __name__)
 
-#Route pour créer un client
 @client.route('/api/clients', methods=['POST'])
 def add_client():
+  """
+  Description: Créer un nouveau client.
+
+  Vérifications:
+  - S'il n'y a des paramètres dans le body (#*1)
+
+  Résultat: Client créé avec succès.
+  """
   data = request.get_json()
 
-  #S'il n'y a pas de paramètres dans le body
+  #*1
   if not data:
     return jsonify({'success': False, 'message': 'Client non créé.'})
 
@@ -23,15 +30,28 @@ def add_client():
 #Route pour modifier un client
 @client.route('/api/clients/<int:id>', methods=['PUT'])
 def modify_client(id):
+  """
+  Description: Modifier un client.
+
+  Vérifications:
+  - S'il n'y a des paramètres dans le body (#*1)
+  - Si l'id ne correspond à aucuns clients (#*2)
+  - Si l'uns des champs du paramètre est modifié (#*3)
+
+  Résultat: Client mise à jour avec succès.
+  """
   data = request.get_json()
   getClient = Client.query.get(id)
 
+  #*1
   if not data:
     return jsonify({'success': False, 'message': 'Client inexistante.'})
 
+  #*2
   if not getClient:
     return jsonify({'success': False, 'message': 'Client inexistante.'})
 
+  #*3
   if data['nom']:
     getClient.nom = data['nom']
   if data['email']:
@@ -44,20 +64,33 @@ def modify_client(id):
 #Route pour supprimer un client
 @client.route('/api/clients/<int:id>', methods=['DELETE'])
 def delete_client(id):
+  """
+  Description: Supprimer un client.
+
+  Vérifications:
+  - Si l'id ne correspond à aucuns clients (#*1)
+
+  Résultat: Client supprimé avec succès.
+  """
+
   getClient = Client.query.get(id)
 
-  #Si l'id ne correspond à aucuns clients
+  #*1
   if not getClient:
     return jsonify({'success': False, 'message': 'Client inexistante.'})
 
   db.session.delete(getClient)
   db.session.commit()
 
-  return jsonify({'success': True, 'message': 'Client annulée avec succès.'})
+  return jsonify({'success': True, 'message': 'Client supprimé avec succès.'})
 
-#Route pour afficher tous les clients
 @client.route('/api/clients/all', methods=['GET'])
 def get_all_clients():
+  """
+  Description: Afficher tous les clients.
+
+  Résultat: Liste de tous les clients.
+  """
   getAllClients = Client.query.all()
   listAllClients = []
 
